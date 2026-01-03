@@ -59,19 +59,15 @@
             border-radius: 28px;
         }
 
-        .arabic-text {
+        /* Texte arabe intégré au flux sans bloc */
+        .arabic-inline {
             font-family: 'Noto Naskh Arabic', serif;
-            font-size: 1.6rem;
+            font-size: 1.25em;
             direction: rtl;
-            display: block;
-            margin: 1rem 0;
-            padding: 1.25rem;
-            background: rgba(0, 166, 126, 0.05);
-            border-radius: 16px;
-            border-right: 5px solid #00A67E;
-            color: var(--text-main);
-            line-height: 2.2;
-            text-align: right;
+            unicode-bidi: isolate;
+            color: #00A67E;
+            line-height: 1.8;
+            padding: 0 4px;
         }
 
         .user-bubble {
@@ -183,7 +179,7 @@ Règles impératives de réponse :
 
 1/Les preuves reposent en priorité sur le Coran et la Sunnah authentique, selon la compréhension des Salaf.
 
-2/Les hadiths doivent être explicitement authentifiés (Sahîh / Hasan / Da‘îf) avec référence aux savants du hadith (Al-Albānī, Al-Bukhārī, Muslim, etc.).
+2/Les hadiths doivent être explicitement authentifiés (Sahîh / Hasan / Da‘îf) avec référence aux savants du hadith (Al-Albānī, Al-Bukhārī, Muslim, etc.) et numérotés pour être vérifiés dans les ouvrages.
 
 3/Les avis juridiques doivent être attribués clairement à des savants reconnus ou à des organismes officiels (Lajnah Dâ-imah).
 
@@ -201,7 +197,9 @@ Règles impératives de réponse :
 
 6/Réponds en français clair, structuré et respectueux, sans propos excessifs ni takfîr.
 
-7/Termine toujours par une conclusion rappelant :
+7/Cite toujours tes sources (page web, pages des livres...)
+
+8/Termine toujours par une conclusion rappelant :
 
 *que ceci est une transmission des paroles des savants
 
@@ -209,7 +207,7 @@ Règles impératives de réponse :
 
 *et la formule : Allahou A‘lam
 
-8/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.`;
+9/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.`;
 
         const html = document.documentElement;
         const icon = document.getElementById('theme-icon');
@@ -257,7 +255,6 @@ Règles impératives de réponse :
             msg.innerHTML = isUser ? text : formatResponse(text);
             wrapper.appendChild(msg);
 
-            // Ajouter les boutons de partage si c'est le bot
             if (!isUser) {
                 const shareBar = document.createElement('div');
                 shareBar.className = 'flex gap-2 mt-2 px-2';
@@ -275,8 +272,9 @@ Règles impératives de réponse :
         }
 
         function formatResponse(text) {
+            // Détection du texte arabe et application d'une classe inline
             let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
-                return `<span class="arabic-text" dir="rtl">${match.trim()}</span>`;
+                return `<span class="arabic-inline">${match.trim()}</span>`;
             });
             return formatted
                 .split('\n').map(line => line.trim() === '' ? '<br>' : line).join('\n')
@@ -286,7 +284,6 @@ Règles impératives de réponse :
 
         async function share(platform, btn) {
             const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
-            // Extraire le texte pur sans les balises HTML pour le partage
             const textToShare = messageElement.innerText;
             const encodedText = encodeURIComponent(textToShare);
 
