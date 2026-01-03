@@ -118,6 +118,12 @@
             font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
             z-index: 1000;
         }
+
+        /* Correction de la visibilité de l'input */
+        #user-input {
+            color: var(--text-main);
+            background-color: var(--input-bg);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -272,7 +278,6 @@ Règles impératives de réponse :
         }
 
         function formatResponse(text) {
-            // Détection du texte arabe et application d'une classe inline
             let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
                 return `<span class="arabic-inline">${match.trim()}</span>`;
             });
