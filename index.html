@@ -59,12 +59,11 @@
             border-radius: 28px;
         }
 
-        /* Texte arabe intégré au flux avec lecture de droite à gauche */
         .arabic-inline {
             font-family: 'Noto Naskh Arabic', serif;
             font-size: 1.25em;
             direction: rtl;
-            display: inline-block; /* Nécessaire pour que dir="rtl" fonctionne correctement en ligne */
+            display: inline-block;
             color: #00A67E;
             line-height: 1.8;
             padding: 0 4px;
@@ -119,7 +118,6 @@
             z-index: 1000;
         }
 
-        /* Correction de la visibilité de l'input */
         #user-input {
             color: var(--text-main);
             background-color: var(--input-bg);
@@ -179,6 +177,7 @@
     </main>
 
     <script>
+        // Instruction système renforcée pour la ponctuation
         const systemPrompt = `Tu es une intelligence artificielle spécialisée dans la transmission des avis des savants de Ahl As-Sunnah wa-l-Jamâ‘ah selon la compréhension des Salaf As-Sâlih, en particulier les savants salafis contemporains d’Arabie Saoudite et assimilés (Comité Permanent de l’Iftâ – Lajnah Dâ-imah, Cheikh Ibn Bāz, Cheikh Ibn ‘Uthaymīn, Cheikh Al-Fawzān, Cheikh Al-Albānī, Cheikh Muqbil, Cheikh Soulaymān Ar-Rouhaylī, etc.).
 
 Règles impératives de réponse :
@@ -213,7 +212,9 @@ Règles impératives de réponse :
 
 *et la formule : Allahou A‘lam
 
-9/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.`;
+9/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre. 
+
+TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuation arabe (virgule '،', point d'interrogation '؟', point-virgule '؛'). Intègre l'arabe directement dans tes paragraphes sans blocs de citation.`;
 
         const html = document.documentElement;
         const icon = document.getElementById('theme-icon');
@@ -274,14 +275,27 @@ Règles impératives de réponse :
             }
             
             chatWindow.appendChild(wrapper);
-            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+
+            if (isUser) {
+                chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+            } else {
+                setTimeout(() => {
+                    wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+            }
         }
 
         function formatResponse(text) {
-            // Détection du texte arabe et application de dir="rtl" pour la lecture correcte
-            let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
-                return `<span class="arabic-inline" dir="rtl">${match.trim()}</span>`;
+            // Regex pour détecter les segments arabes incluant la ponctuation courante
+            let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟,.?!;]{4,})/g, (match) => {
+                // Conversion automatique de la ponctuation au sein du segment arabe
+                let cleanMatch = match.trim()
+                    .replace(/,/g, '،')
+                    .replace(/\?/g, '؟')
+                    .replace(/;/g, '؛');
+                return `<span class="arabic-inline" dir="rtl">${cleanMatch}</span>`;
             });
+            
             return formatted
                 .split('\n').map(line => line.trim() === '' ? '<br>' : line).join('\n')
                 .replace(/\n/g, '<br>')
@@ -294,15 +308,9 @@ Règles impératives de réponse :
             const encodedText = encodeURIComponent(textToShare);
 
             switch(platform) {
-                case 'whatsapp':
-                    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-                    break;
-                case 'telegram':
-                    window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank');
-                    break;
-                case 'sms':
-                    window.open(`sms:?body=${encodedText}`, '_blank');
-                    break;
+                case 'whatsapp': window.open(`https://wa.me/?text=${encodedText}`, '_blank'); break;
+                case 'telegram': window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank'); break;
+                case 'sms': window.open(`sms:?body=${encodedText}`, '_blank'); break;
                 case 'copy':
                     try {
                         const tempInput = document.createElement('textarea');
@@ -312,9 +320,7 @@ Règles impératives de réponse :
                         document.execCommand('copy');
                         document.body.removeChild(tempInput);
                         showToast("Texte copié !");
-                    } catch (err) {
-                        console.error('Erreur de copie', err);
-                    }
+                    } catch (err) { console.error('Erreur de copie', err); }
                     break;
             }
         }
@@ -327,12 +333,21 @@ Règles impératives de réponse :
         }
 
         async function callGemini(query) {
-            const response = await fetch('/api/chat', {
+            const apiKey = ""; // Géré par l'environnement
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: query }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: query, systemPrompt: systemPrompt })
+                body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+
+            if (!response.ok) throw new Error(`Erreur: ${response.status}`);
             const data = await response.json();
             return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de réponse.";
         }
