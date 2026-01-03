@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- Meta balises pour le mode Web App (PWA) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10,12 +10,13 @@
     <meta name="apple-mobile-web-app-title" content="Ifta Smart">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0A0F12">
+    <meta name="format-detection" content="telephone=no">
 
-    <!-- Icônes pour iPhone/Android (utilisant un favicon d'exemple) -->
+    <!-- Icônes pour iPhone/Android -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2800/2800045.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2800/2800045.png">
 
-    <!-- Lien vers le manifest (voir instructions ci-dessous pour le créer sur GitHub) -->
+    <!-- Lien vers le manifest -->
     <link rel="manifest" href="manifest.json">
 
     <title>Al-Ifta Smart Assistant</title>
@@ -42,6 +43,9 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             display: flex;
             flex-direction: column;
+            /* Empêcher le rebond sur iOS */
+            position: fixed;
+            width: 100%;
         }
 
         .bg-mesh {
@@ -62,6 +66,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            margin-bottom: env(safe-area-inset-bottom);
         }
 
         .arabic-text {
@@ -97,6 +102,7 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-appearance: none;
         }
 
         .smart-input:focus {
@@ -119,6 +125,7 @@
         #chat-window {
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
+            padding-top: env(safe-area-inset-top);
         }
     </style>
 </head>
@@ -126,7 +133,7 @@
 
     <div class="bg-mesh"></div>
 
-    <header class="py-4 md:py-6 px-4 md:px-8 flex-shrink-0 z-50">
+    <header class="py-4 md:py-6 px-4 md:px-8 flex-shrink-0 z-50 mt-[env(safe-area-inset-top)]">
         <div class="container mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3 md:gap-4">
                 <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-tr from-[#00A67E] to-[#D4AF37] rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
@@ -165,7 +172,7 @@
                 </div>
             </div>
 
-            <div class="p-4 md:p-6 bg-white/5 border-t border-white/10 backdrop-blur-md">
+            <div class="p-4 md:p-6 bg-white/5 border-t border-white/10 backdrop-blur-md pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <form id="qa-form" class="flex items-center gap-3 md:gap-4 max-w-4xl mx-auto">
                     <div class="relative flex-grow">
                         <input type="text" id="user-input" 
@@ -287,10 +294,14 @@
             userInput.focus();
         });
 
-        // Service Worker basique pour permettre l'installation PWA
+        // Enregistrement du Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    console.log('SW Registered');
+                }).catch(err => {
+                    console.log('SW Registration failed', err);
+                });
             });
         }
     </script>
