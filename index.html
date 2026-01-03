@@ -336,7 +336,7 @@ Règles impératives de réponse :
             });
             if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
             const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de réponse.";
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Le service est fermé, Veuillez revenir ultérieurement!";
         }
 
         qaForm.addEventListener('submit', async (e) => {
