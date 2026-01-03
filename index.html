@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <title>Al-Ifta Smart Assistant</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 500: '#00A67E' },
+                        gold: { 500: '#D4AF37' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #F8FAFC;
+            --panel-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #0F172A;
+            --border-color: rgba(0, 166, 126, 0.15);
+            --input-bg: #FFFFFF;
+        }
+
+        .dark {
+            --bg-main: #0A0F12;
+            --panel-bg: rgba(15, 23, 28, 0.7);
+            --text-main: #F8FAFC;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            height: 100dvh;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+        }
+
+        .arabic-text {
+            font-family: 'Amiri', serif;
+            font-size: 1.45rem;
+            direction: rtl;
+            display: block;
+            margin: 1rem 0;
+            padding: 1.25rem;
+            background: rgba(0, 166, 126, 0.08);
+            border-radius: 12px;
+            border-right: 4px solid #00A67E;
+            color: var(--text-main);
+            line-height: 1.9;
+        }
+
+        /* Bubbles */
+        .user-bubble {
+            background: linear-gradient(135deg, #00A67E, #008162);
+            color: white;
+            border-radius: 18px 18px 2px 18px;
+        }
+
+        .bot-bubble {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px 18px 18px 2px;
+            color: var(--text-main);
+        }
+
+        #chat-window::-webkit-scrollbar { width: 5px; }
+        #chat-window::-webkit-scrollbar-thumb { background: #00A67E; border-radius: 10px; }
+
+        .theme-toggle-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #00A67E;
+        }
+
+        #user-input {
+            background-color: var(--input-bg);
+            color: var(--text-main);
+        }
+
+        .markdown-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .markdown-content p { margin-bottom: 1rem; }
+        .markdown-content strong { color: #00A67E; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="py-4 px-6 flex-shrink-0 z-50">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-mosque text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight">Ifta <span class="text-emerald-500">Smart</span></h1>
+                </div>
+            </div>
+            
+            <button onclick="toggleTheme()" class="theme-toggle-btn" title="Changer de mode">
+                <i id="theme-icon" class="fas fa-sun"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col overflow-hidden w-full max-w-5xl mx-auto p-3 md:p-6">
+        <div class="flex-grow glass-panel shadow-2xl flex flex-col overflow-hidden">
+            
+            <div id="chat-window" class="flex-grow overflow-y-auto p-4 md:p-8 space-y-6">
+                <div id="welcome-screen" class="flex flex-col items-center justify-center text-center h-full space-y-6">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                        <i class="fas fa-shield-halved text-emerald-500 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold mb-2">Comment puis-je vous aider ?</h2>
+                        <p class="opacity-70 text-sm max-w-xs mx-auto">Posez vos questions selon les enseignements du Coran et de la Sunnah.</p>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <button onclick="quickAsk('Comment faire la prière ?')" class="px-4 py-2 text-xs font-semibold border border-emerald-500/30 rounded-full hover:bg-emerald-500 hover:text-white transition-all">Prière</button>
+                        <button onclick="quickAsk('Mérite du jeûne')" class="px-4 py-2 text-xs font-semibold border border-emerald-500/30 rounded-full hover:bg-emerald-500 hover:text-white transition-all">Jeûne</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-emerald-500/5 border-t border-emerald-500/10">
+                <form id="qa-form" class="flex items-center gap-2 max-w-4xl mx-auto">
+                    <input type="text" id="user-input" 
+                        class="flex-grow border border-emerald-500/20 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                        placeholder="Écrivez votre question ici..." autocomplete="off" required>
+                    
+                    <button type="submit" id="submit-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 rounded-xl transition-transform active:scale-95 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- CONFIGURATION SÉCURISÉE ---
+        // La clé API a été supprimée d'ici. Elle est maintenant sur le serveur Vercel.
+        const systemPrompt = `Tu es une intelligence artificielle spécialisée dans la transmission des avis des savants de Ahl As-Sunnah wa-l-Jamâ‘ah selon la compréhension des Salaf As-Sâlih, en particulier les savants salafis contemporains d’Arabie Saoudite et assimilés (Comité Permanent de l’Iftâ – Lajnah Dâ-imah, Cheikh Ibn Bāz, Cheikh Ibn ‘Uthaymīn, Cheikh Al-Fawzān, Cheikh Al-Albānī, Cheikh Muqbil, Cheikh Soulaymān Ar-Rouhaylī, etc.).
+
+Règles impératives de réponse :
+
+1/Les preuves reposent en priorité sur le Coran et la Sunnah authentique, selon la compréhension des Salaf.
+
+2/Les hadiths doivent être explicitement authentifiés (Sahîh / Hasan / Da‘îf) avec référence aux savants du hadith (Al-Albānī, Al-Bukhārī, Muslim, etc.).
+
+3/Les avis juridiques doivent être attribués clairement à des savants reconnus ou à des organismes officiels (Lajnah Dâ-imah).
+
+4/Les preuves (Dalîl) doivent être présentées ainsi :
+
+*Texte arabe vocalisé
+
+*Traduction française fidèle
+
+5/En cas de divergence entre les savants, mentionne :
+
+*les avis existants brièvement
+
+*l’avis prépondérant (râjih) selon les savants salafis
+
+6/Réponds en français clair, structuré et respectueux, sans propos excessifs ni takfîr.
+
+7/Termine toujours par une conclusion rappelant :
+
+*que ceci est une transmission des paroles des savants
+
+*que pour les situations complexes, il faut consulter un savant
+
+*et la formule : Allahou A‘lam
+
+8/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.`;
+
+        // --- LOGIQUE DU THÈME ---
+        const html = document.documentElement;
+        const icon = document.getElementById('theme-icon');
+
+        function updateUI(theme) {
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                icon.className = 'fas fa-moon';
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                icon.className = 'fas fa-sun';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = html.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            updateUI(newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        updateUI(savedTheme);
+
+        // --- LOGIQUE CHAT & API ---
+        const chatWindow = document.getElementById('chat-window');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const qaForm = document.getElementById('qa-form');
+        const userInput = document.getElementById('user-input');
+
+        function appendMessage(text, isUser) {
+            if (welcomeScreen && welcomeScreen.style.display !== 'none') {
+                welcomeScreen.style.display = 'none';
+            }
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'} mb-6 w-full animate-in fade-in slide-in-from-bottom-2 duration-300`;
+            
+            const msg = document.createElement('div');
+            msg.className = isUser 
+                ? 'user-bubble px-5 py-3 max-w-[85%] shadow-md'
+                : 'bot-bubble px-5 py-5 max-w-[92%] shadow-sm markdown-content';
+            
+            msg.innerHTML = isUser ? text : formatResponse(text);
+            
+            wrapper.appendChild(msg);
+            chatWindow.appendChild(wrapper);
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+        }
+
+        function formatResponse(text) {
+            let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{5,})/g, (match) => {
+                return `<span class="arabic-text" dir="rtl">${match.trim()}</span>`;
+            });
+
+            return formatted
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        // FONCTION MODIFIÉE POUR APPELER VERCEL
+        async function callGemini(query) {
+            try {
+                // On appelle notre propre API (api/chat.js) au lieu de Google directement
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        systemPrompt: systemPrompt
+                    })
+                });
+
+                if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+                
+                const data = await response.json();
+                // Structure de réponse Gemini
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Désolé, je n'ai pas pu générer de réponse.";
+                
+            } catch (error) {
+                console.error("Erreur API:", error);
+                throw error;
+            }
+        }
+
+        function quickAsk(q) {
+            userInput.value = q;
+            qaForm.dispatchEvent(new Event('submit'));
+        }
+
+        qaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const q = userInput.value.trim();
+            if (!q) return;
+
+            appendMessage(q, true);
+            userInput.value = '';
+            
+            const loading = document.createElement('div');
+            loading.className = 'text-emerald-500 text-xs animate-pulse p-2 mb-4';
+            loading.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche dans les sources authentiques...';
+            chatWindow.appendChild(loading);
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+
+            try {
+                const response = await callGemini(q);
+                loading.remove();
+                appendMessage(response, false);
+            } catch (error) {
+                loading.remove();
+                appendMessage("Désolé, une erreur est survenue lors de la connexion aux serveurs sécurisés. Veuillez vérifier votre configuration.", false);
+            }
+        });
+    </script>
+</body>
+</html>
