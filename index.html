@@ -6,101 +6,62 @@
     
     <title>Al-Ifta Smart Assistant</title>
     
-    <!-- Plus de script Tailwind ici -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Variables de design (Design Tokens) */
+        /* Variables de base et thèmes */
         :root {
-            --emerald-500: #00A67E;
-            --emerald-600: #008B69;
             --bg-main: #FDFDFD;
             --panel-bg: rgba(255, 255, 255, 0.95);
             --text-main: #1E293B;
             --text-muted: #64748b;
             --border-color: rgba(0, 166, 126, 0.12);
             --input-bg: #FFFFFF;
-            --shadow-emerald: 0 10px 15px -3px rgba(0, 166, 126, 0.2);
-            --font-sans: 'Plus Jakarta Sans', sans-serif;
-            --font-arabic: 'Noto Naskh Arabic', serif;
+            --emerald-500: #00A67E;
+            --emerald-600: #008B69;
+            --shadow-emerald: rgba(0, 166, 126, 0.2);
         }
 
         .dark {
             --bg-main: #0F172A;
-            --panel-bg: rgba(30, 41, 59, 0.85);
+            --panel-bg: rgba(30, 41, 59, 0.8);
             --text-main: #F1F5F9;
             --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --input-bg: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(15, 23, 42, 0.6);
         }
 
-        /* Reset & Base Styles */
+        /* Reset & Layout */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             height: 100dvh;
             background-color: var(--bg-main);
             color: var(--text-main);
-            font-family: var(--font-sans);
-            transition: background-color 0.3s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Layout */
-        .header {
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: center;
-            z-index: 50;
+        header { padding: 1rem 1.5rem; flex-shrink: 0; z-index: 50; }
+        .header-container { max-width: 56rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        
+        .logo-box { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon { 
+            width: 2.75rem; height: 2.75rem; background: var(--emerald-500); 
+            border-radius: 1rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 15px -3px var(--shadow-emerald);
         }
+        .logo-text h1 { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.025em; line-height: 1; }
+        .logo-text span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; color: var(--emerald-500); opacity: 0.8; }
 
-        .header-content {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 56rem; margin: 0 auto; padding: 1rem; padding-bottom: 0.5rem; }
 
-        .logo-area { display: flex; align-items: center; gap: 0.75rem; }
-
-        .logo-icon {
-            width: 2.75rem;
-            height: 2.75rem;
-            background-color: var(--emerald-500);
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            box-shadow: var(--shadow-emerald);
-        }
-
-        .logo-text h1 { font-size: 1.25rem; font-weight: 700; line-height: 1; }
-        .logo-subtitle { 
-            font-size: 10px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.2em; 
-            font-weight: 700; 
-            color: var(--emerald-600);
-            opacity: 0.8;
-        }
-
-        .main-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1rem;
-            overflow: hidden;
-        }
-
+        /* Panels & Bubbles */
         .glass-panel {
             flex-grow: 1;
             background: var(--panel-bg);
@@ -111,206 +72,140 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Chat Window */
-        #chat-window {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
+        #chat-window { flex-grow: 1; overflow-y: auto; padding: 1rem; space-y: 2rem; }
+        @media (min-width: 768px) { #chat-window { padding: 2rem; } }
 
-        .welcome-screen {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            gap: 1.5rem;
-        }
-
-        .welcome-icon {
-            width: 5rem;
-            height: 5rem;
-            background: rgba(0, 166, 126, 0.1);
-            border-radius: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--emerald-500);
-            font-size: 2rem;
-        }
-
-        /* Message Bubbles */
-        .message-wrapper { display: flex; flex-direction: column; width: 100%; }
-        .message-wrapper.user { align-items: flex-end; }
-        .message-wrapper.bot { align-items: flex-start; }
-
-        .bubble {
-            padding: 1rem 1.25rem;
-            font-size: 1rem;
-            max-width: 85%;
-            word-wrap: break-word;
-        }
+        .message-wrapper { display: flex; flex-direction: column; margin-bottom: 2rem; width: 100%; animation: fadeInUp 0.5s ease; }
+        .items-end { align-items: flex-end; }
+        .items-start { align-items: flex-start; }
 
         .user-bubble {
-            background: linear-gradient(135deg, var(--emerald-500), var(--emerald-600));
+            background: linear-gradient(135deg, var(--emerald-500), #008162);
             color: white;
+            padding: 1rem 1.5rem;
             border-radius: 20px 20px 4px 20px;
+            max-width: 85%;
+            box-shadow: 0 4px 12px rgba(0, 166, 126, 0.15);
         }
 
         .bot-bubble {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
+            padding: 1.5rem;
             border-radius: 20px 20px 20px 4px;
-            padding: 1.5rem;
-            line-height: 1.7;
-        }
-
-        .arabic-inline {
-            font-family: var(--font-arabic);
-            font-size: 1.2rem;
-            direction: rtl;
-            unicode-bidi: isolate;
-            color: var(--emerald-600);
-            display: block;
-            margin: 0.5rem 0;
-        }
-
-        /* Input Area */
-        .input-area {
-            padding: 1.5rem;
-            background: rgba(0, 0, 0, 0.02);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .form-container {
-            display: flex;
-            gap: 0.75rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        #user-input {
-            flex-grow: 1;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
             color: var(--text-main);
-            outline: none;
-            transition: all 0.2s;
+            max-width: 95%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        #user-input:focus {
-            border-color: var(--emerald-500);
-            box-shadow: 0 0 0 4px rgba(0, 166, 126, 0.1);
+        /* Formulaire */
+        .input-area { padding: 1rem; background: rgba(248, 250, 252, 0.5); border-top: 1px solid var(--border-color); }
+        .dark .input-area { background: rgba(15, 23, 42, 0.3); }
+        
+        .form-container { display: flex; gap: 0.75rem; max-width: 48rem; margin: 0 auto; align-items: center; }
+        
+        #user-input {
+            flex-grow: 1; border: 1px solid #e2e8f0; border-radius: 1.25rem;
+            padding: 1rem 1.25rem; outline: none; transition: all 0.2s;
+            font-size: 1rem; color: var(--text-main); background: var(--input-bg);
         }
+        .dark #user-input { border-color: #334155; }
+        #user-input:focus { border-color: var(--emerald-500); box-shadow: 0 0 0 4px var(--shadow-emerald); }
 
         #submit-btn {
-            width: 3.5rem;
-            height: 3.5rem;
-            background: var(--emerald-500);
-            color: white;
-            border: none;
-            border-radius: 1.25rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-emerald);
-        }
-
-        #submit-btn:hover { background: var(--emerald-600); }
-        #submit-btn:active { transform: scale(0.95); }
-
-        /* Actions & UI Elements */
-        .share-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; padding-left: 0.5rem; }
-        .share-btn {
-            background: none; border: none; color: var(--emerald-500);
-            padding: 0.5rem; cursor: pointer; border-radius: 0.5rem; transition: 0.2s;
-        }
-        .share-btn:hover { background: rgba(0, 166, 126, 0.1); }
-
-        .theme-toggle {
-            width: 2.75rem; height: 2.75rem; border-radius: 0.75rem;
+            background: var(--emerald-500); color: white; width: 3.5rem; height: 3.5rem;
+            border-radius: 1.25rem; border: none; cursor: pointer; transition: all 0.2s;
             display: flex; align-items: center; justify-content: center;
-            background: var(--input-bg); border: 1px solid var(--border-color);
-            color: var(--emerald-500); cursor: pointer;
+            box-shadow: 0 10px 15px -3px var(--shadow-emerald);
+        }
+        #submit-btn:hover { background: var(--emerald-600); }
+        #submit-btn:active { transform: scale(0.9); }
+
+        /* Autres styles */
+        .arabic-inline { font-family: 'Noto Naskh Arabic', serif; font-size: 1.25em; direction: rtl; display: inline-block; color: var(--emerald-500); line-height: 1.8; padding: 0 4px; }
+        
+        .theme-toggle-btn {
+            width: 44px; height: 44px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            cursor: pointer; transition: all 0.2s; color: var(--emerald-500);
         }
 
-        #toast {
-            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
-            background: #334155; color: white; padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem; font-size: 0.875rem; opacity: 0;
-            transition: opacity 0.3s; pointer-events: none; z-index: 1000;
+        .share-btn { 
+            padding: 0.5rem; background: transparent; border: none; cursor: pointer;
+            border-radius: 0.5rem; color: var(--emerald-500); transition: background 0.2s; 
         }
+        .share-btn:hover { background: var(--shadow-emerald); }
 
-        /* Animations */
-        .dot-flashing {
-            width: 6px; height: 6px; border-radius: 5px; background-color: var(--emerald-500);
-            animation: dot-flashing 1s infinite linear alternate;
-        }
-        @keyframes dot-flashing {
-            0% { background-color: var(--emerald-500); }
-            50%, 100% { background-color: rgba(0, 166, 126, 0.2); }
-        }
+        #welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; padding: 2.5rem 0; gap: 1.5rem; }
+        .welcome-icon { width: 5rem; height: 5rem; border-radius: 1.5rem; background: var(--shadow-emerald); display: flex; align-items: center; justify-content: center; color: var(--emerald-500); font-size: 1.875rem; }
+        .welcome-text h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .welcome-text p { color: var(--text-muted); line-height: 1.6; max-width: 24rem; }
 
-        .fade-in-up {
-            animation: fadeInUp 0.4s ease-out forwards;
-        }
+        .footer-tag { text-align: center; margin-top: 1rem; font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Mobile Adjustments */
-        @media (max-width: 640px) {
-            #chat-window { padding: 1.25rem; }
-            .bubble { max-width: 90%; }
-            .logo-text h1 { font-size: 1.1rem; }
+        .dot-flashing {
+            position: relative; width: 6px; height: 6px; border-radius: 5px;
+            background-color: var(--emerald-500); animation: dot-flashing 1s infinite linear alternate;
         }
+        @keyframes dot-flashing {
+            0% { background-color: var(--emerald-500); }
+            50%, 100% { background-color: var(--shadow-emerald); }
+        }
+
+        #chat-window::-webkit-scrollbar { width: 4px; }
+        #chat-window::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+        .dark #chat-window::-webkit-scrollbar-thumb { background: #334155; }
+
+        #toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: #334155; color: white; padding: 10px 20px; border-radius: 12px;
+            font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000;
+        }
+
+        .markdown-content p { margin-bottom: 1rem; }
+        .markdown-content strong { color: var(--emerald-500); font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div id="toast">Copié dans le presse-papiers</div>
 
-    <header class="header">
-        <div class="header-content">
-            <div class="logo-area">
+    <header>
+        <div class="header-container">
+            <div class="logo-box">
                 <div class="logo-icon">
-                    <i class="fas fa-mosque"></i>
+                    <i class="fas fa-mosque text-white"></i>
                 </div>
                 <div class="logo-text">
                     <h1>Al-Ifta</h1>
-                    <div class="logo-subtitle">Assistant Intelligent</div>
+                    <span>Smart Assistant</span>
                 </div>
             </div>
-            
-            <button onclick="toggleTheme()" class="theme-toggle" aria-label="Changer de thème">
+            <button onclick="toggleTheme()" class="theme-toggle-btn">
                 <i id="theme-icon" class="fas fa-sun"></i>
             </button>
         </div>
     </header>
 
-    <main class="main-container">
+    <main>
         <div class="glass-panel">
             <div id="chat-window">
-                <div id="welcome-screen" class="welcome-screen">
+                <div id="welcome-screen">
                     <div class="welcome-icon">
                         <i class="fas fa-book-open"></i>
                     </div>
-                    <div style="max-width: 320px;">
-                        <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem;">Assalamou alaykoum</h2>
-                        <p style="color: var(--text-muted);">Je suis votre assistant pour les questions religieuses selon le Coran et la Sunnah.</p>
+                    <div class="welcome-text">
+                        <h2>Assalamou alaykoum</h2>
+                        <p>Je suis votre assistant pour les questions religieuses selon le Coran et la Sunnah.</p>
                     </div>
                 </div>
             </div>
@@ -322,50 +217,33 @@
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
-                <div style="text-align: center; margin-top: 1rem; font-size: 9px; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 700;">
-                    ALLAHOU A'LAM • AHL AS-SUNNAH
-                </div>
+                <p class="footer-tag">Allahou A'lam • Ahl As-Sunnah</p>
             </div>
         </div>
     </main>
 
     <script>
+        // --- Logique Gemini (Inchangée) ---
         const systemPrompt = `Tu es une intelligence artificielle spécialisée dans la transmission des avis des savants de Ahl As-Sunnah wa-l-Jamâ‘ah selon la compréhension des Salaf As-Sâlih, en particulier les savants salafis contemporains d’Arabie Saoudite et assimilés (Comité Permanent de l’Iftâ – Lajnah Dâ-imah, Cheikh Ibn Bāz, Cheikh Ibn ‘Uthaymīn, Cheikh Al-Fawzān, Cheikh Al-Albānī, Cheikh Muqbil, Cheikh Soulaymān Ar-Rouhaylī, etc.).
 
 Règles impératives de réponse :
 
 1/Les preuves reposent en priorité sur le Coran et la Sunnah authentique, selon la compréhension des Salaf.
-
 2/Les hadiths doivent être explicitement authentifiés (Sahîh / Hasan / Da‘îf) avec référence aux savants du hadith (Al-Albānī, Al-Bukhārī, Muslim, etc.) et numérotés pour être vérifiés dans les ouvrages.
-
 3/Les avis juridiques doivent être attribués clairement à des savants reconnus ou à des organismes officiels (Lajnah Dâ-imah).
-
 4/Les preuves (Dalîl) doivent être présentées ainsi :
-
 *Texte arabe vocalisé
-
 *Traduction française fidèle
-
 5/En cas de divergence entre les savants, mentionne :
-
 *les avis existants brièvement
-
 *l’avis prépondérant (râjih) selon les savants salafis
-
 6/Réponds en français clair, structuré et respectueux, sans propos excessifs ni takfîr.
-
 7/Cite toujours tes sources (page web, pages des livres...)
-
 8/Termine toujours par une conclusion rappelant :
-
 *que ceci est une transmission des paroles des savants
-
 *que pour les situations complexes, il faut consulter un savant
-
 *et la formule : Allahou A‘lam
-
 9/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.
-
 10/TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuation arabe (virgule '،', point d'interrogation '؟', point-virgule '؛'). Intègre l'arabe directement dans tes paragraphes sans blocs de citation.`;
 
         const html = document.documentElement;
@@ -404,19 +282,19 @@ Règles impératives de réponse :
             }
             
             const wrapper = document.createElement('div');
-            wrapper.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500`;
+            wrapper.className = `message-wrapper ${isUser ? 'items-end' : 'items-start'}`;
             
             const msg = document.createElement('div');
-            msg.className = isUser 
-                ? 'user-bubble px-6 py-4 max-w-[85%] md:max-w-[70%]'
-                : 'bot-bubble px-6 py-6 max-w-[95%] md:max-w-[85%] markdown-content';
+            msg.className = isUser ? 'user-bubble' : 'bot-bubble markdown-content';
             
             msg.innerHTML = isUser ? text : formatResponse(text);
             wrapper.appendChild(msg);
 
             if (!isUser) {
                 const shareBar = document.createElement('div');
-                shareBar.className = 'flex gap-2 mt-2 px-2';
+                shareBar.style.display = 'flex';
+                shareBar.style.gap = '0.5rem';
+                shareBar.style.marginTop = '0.5rem';
                 shareBar.innerHTML = `
                     <button onclick="share('whatsapp', this)" class="share-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
                     <button onclick="share('telegram', this)" class="share-btn" title="Telegram"><i class="fab fa-telegram-plane"></i></button>
@@ -431,7 +309,6 @@ Règles impératives de réponse :
         }
 
         function formatResponse(text) {
-            // Détection du texte arabe et application de dir="rtl" pour la lecture correcte
             let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
                 return `<span class="arabic-inline" dir="rtl">${match.trim()}</span>`;
             });
@@ -442,20 +319,14 @@ Règles impératives de réponse :
         }
 
         async function share(platform, btn) {
-            const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
+            const messageElement = btn.closest('.message-wrapper').querySelector(btn.closest('.message-wrapper').querySelector('.user-bubble') ? '.user-bubble' : '.bot-bubble');
             const textToShare = messageElement.innerText;
             const encodedText = encodeURIComponent(textToShare);
 
             switch(platform) {
-                case 'whatsapp':
-                    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-                    break;
-                case 'telegram':
-                    window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank');
-                    break;
-                case 'sms':
-                    window.open(`sms:?body=${encodedText}`, '_blank');
-                    break;
+                case 'whatsapp': window.open(`https://wa.me/?text=${encodedText}`, '_blank'); break;
+                case 'telegram': window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank'); break;
+                case 'sms': window.open(`sms:?body=${encodedText}`, '_blank'); break;
                 case 'copy':
                     try {
                         const tempInput = document.createElement('textarea');
@@ -465,9 +336,7 @@ Règles impératives de réponse :
                         document.execCommand('copy');
                         document.body.removeChild(tempInput);
                         showToast("Texte copié !");
-                    } catch (err) {
-                        console.error('Erreur de copie', err);
-                    }
+                    } catch (err) { console.error('Erreur de copie', err); }
                     break;
             }
         }
@@ -499,8 +368,14 @@ Règles impératives de réponse :
             userInput.value = '';
             
             const loading = document.createElement('div');
-            loading.className = 'flex items-center gap-3 p-4 mb-4 text-emerald-500 italic text-sm';
-            loading.innerHTML = '<div class="dot-flashing"></div><span class="opacity-70 ml-4">Consultation des sources...</span>';
+            loading.style.display = 'flex';
+            loading.style.alignItems = 'center';
+            loading.style.gap = '0.75rem';
+            loading.style.padding = '1rem';
+            loading.style.color = 'var(--emerald-500)';
+            loading.style.fontStyle = 'italic';
+            loading.style.fontSize = '0.875rem';
+            loading.innerHTML = '<div class="dot-flashing"></div><span style="opacity: 0.7">Consultation des sources...</span>';
             chatWindow.appendChild(loading);
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
 
