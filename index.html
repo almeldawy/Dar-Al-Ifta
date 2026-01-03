@@ -6,35 +6,40 @@
     
     <title>Al-Ifta Smart Assistant</title>
     
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 500: '#00A67E', 600: '#008B69' },
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* Variables de base et thèmes */
         :root {
             --bg-main: #FDFDFD;
             --panel-bg: rgba(255, 255, 255, 0.95);
             --text-main: #1E293B;
-            --text-muted: #64748b;
             --border-color: rgba(0, 166, 126, 0.12);
             --input-bg: #FFFFFF;
-            --emerald-500: #00A67E;
-            --emerald-600: #008B69;
-            --shadow-emerald: rgba(0, 166, 126, 0.2);
         }
 
         .dark {
             --bg-main: #0F172A;
             --panel-bg: rgba(30, 41, 59, 0.8);
             --text-main: #F1F5F9;
-            --text-muted: #94a3b8;
             --border-color: rgba(255, 255, 255, 0.08);
             --input-bg: rgba(15, 23, 42, 0.6);
         }
 
-        /* Reset & Layout */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
             height: 100dvh;
             background-color: var(--bg-main);
@@ -44,206 +49,172 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            -webkit-font-smoothing: antialiased;
         }
 
-        header { padding: 1rem 1.5rem; flex-shrink: 0; z-index: 50; }
-        .header-container { max-width: 56rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-        
-        .logo-box { display: flex; align-items: center; gap: 0.75rem; }
-        .logo-icon { 
-            width: 2.75rem; height: 2.75rem; background: var(--emerald-500); 
-            border-radius: 1rem; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 15px -3px var(--shadow-emerald);
-        }
-        .logo-text h1 { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.025em; line-height: 1; }
-        .logo-text span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; color: var(--emerald-500); opacity: 0.8; }
-
-        main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 56rem; margin: 0 auto; padding: 1rem; padding-bottom: 0.5rem; }
-
-        /* Panels & Bubbles */
         .glass-panel {
-            flex-grow: 1;
             background: var(--panel-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 28px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        #chat-window { flex-grow: 1; overflow-y: auto; padding: 1rem; space-y: 2rem; }
-        @media (min-width: 768px) { #chat-window { padding: 2rem; } }
-
-        .message-wrapper { display: flex; flex-direction: column; margin-bottom: 2rem; width: 100%; animation: fadeInUp 0.5s ease; }
-        .items-end { align-items: flex-end; }
-        .items-start { align-items: flex-start; }
+        /* Texte arabe intégré au flux avec lecture de droite à gauche */
+        .arabic-inline {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 1.25em;
+            direction: rtl;
+            display: inline-block; /* Nécessaire pour que dir="rtl" fonctionne correctement en ligne */
+            color: #00A67E;
+            line-height: 1.8;
+            padding: 0 4px;
+        }
 
         .user-bubble {
-            background: linear-gradient(135deg, var(--emerald-500), #008162);
+            background: linear-gradient(135deg, #00A67E, #008162);
             color: white;
-            padding: 1rem 1.5rem;
             border-radius: 20px 20px 4px 20px;
-            max-width: 85%;
             box-shadow: 0 4px 12px rgba(0, 166, 126, 0.15);
         }
 
         .bot-bubble {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            padding: 1.5rem;
             border-radius: 20px 20px 20px 4px;
             color: var(--text-main);
-            max-width: 95%;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        /* Formulaire */
-        .input-area { padding: 1rem; background: rgba(248, 250, 252, 0.5); border-top: 1px solid var(--border-color); }
-        .dark .input-area { background: rgba(15, 23, 42, 0.3); }
-        
-        .form-container { display: flex; gap: 0.75rem; max-width: 48rem; margin: 0 auto; align-items: center; }
-        
-        #user-input {
-            flex-grow: 1; border: 1px solid #e2e8f0; border-radius: 1.25rem;
-            padding: 1rem 1.25rem; outline: none; transition: all 0.2s;
-            font-size: 1rem; color: var(--text-main); background: var(--input-bg);
-        }
-        .dark #user-input { border-color: #334155; }
-        #user-input:focus { border-color: var(--emerald-500); box-shadow: 0 0 0 4px var(--shadow-emerald); }
-
-        #submit-btn {
-            background: var(--emerald-500); color: white; width: 3.5rem; height: 3.5rem;
-            border-radius: 1.25rem; border: none; cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 15px -3px var(--shadow-emerald);
-        }
-        #submit-btn:hover { background: var(--emerald-600); }
-        #submit-btn:active { transform: scale(0.9); }
-
-        /* Autres styles */
-        .arabic-inline { font-family: 'Noto Naskh Arabic', serif; font-size: 1.25em; direction: rtl; display: inline-block; color: var(--emerald-500); line-height: 1.8; padding: 0 4px; }
-        
-        .theme-toggle-btn {
-            width: 44px; height: 44px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            background: var(--panel-bg); border: 1px solid var(--border-color);
-            cursor: pointer; transition: all 0.2s; color: var(--emerald-500);
-        }
-
-        .share-btn { 
-            padding: 0.5rem; background: transparent; border: none; cursor: pointer;
-            border-radius: 0.5rem; color: var(--emerald-500); transition: background 0.2s; 
-        }
-        .share-btn:hover { background: var(--shadow-emerald); }
-
-        #welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; padding: 2.5rem 0; gap: 1.5rem; }
-        .welcome-icon { width: 5rem; height: 5rem; border-radius: 1.5rem; background: var(--shadow-emerald); display: flex; align-items: center; justify-content: center; color: var(--emerald-500); font-size: 1.875rem; }
-        .welcome-text h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; }
-        .welcome-text p { color: var(--text-muted); line-height: 1.6; max-width: 24rem; }
-
-        .footer-tag { text-align: center; margin-top: 1rem; font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .dot-flashing {
-            position: relative; width: 6px; height: 6px; border-radius: 5px;
-            background-color: var(--emerald-500); animation: dot-flashing 1s infinite linear alternate;
-        }
-        @keyframes dot-flashing {
-            0% { background-color: var(--emerald-500); }
-            50%, 100% { background-color: var(--shadow-emerald); }
+        .share-btn {
+            @apply p-2 hover:bg-emerald-500/10 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400;
         }
 
         #chat-window::-webkit-scrollbar { width: 4px; }
         #chat-window::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
         .dark #chat-window::-webkit-scrollbar-thumb { background: #334155; }
 
-        #toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: #334155; color: white; padding: 10px 20px; border-radius: 12px;
-            font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000;
+        .theme-toggle-btn {
+            width: 44px; height: 44px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            cursor: pointer; transition: all 0.2s; color: #00A67E;
         }
 
         .markdown-content p { margin-bottom: 1rem; }
-        .markdown-content strong { color: var(--emerald-500); font-weight: 700; }
+        .markdown-content strong { color: #00A67E; font-weight: 700; }
+        
+        .dot-flashing {
+            position: relative; width: 6px; height: 6px; border-radius: 5px;
+            background-color: #00A67E; animation: dot-flashing 1s infinite linear alternate;
+        }
+        @keyframes dot-flashing {
+            0% { background-color: #00A67E; }
+            50%, 100% { background-color: rgba(0, 166, 126, 0.2); }
+        }
+
+        #toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: #334155; color: white; padding: 10px 20px; border-radius: 12px;
+            font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Correction de la visibilité de l'input */
+        #user-input {
+            color: var(--text-main);
+            background-color: var(--input-bg);
+        }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
     <div id="toast">Copié dans le presse-papiers</div>
 
-    <header>
-        <div class="header-container">
-            <div class="logo-box">
-                <div class="logo-icon">
-                    <i class="fas fa-mosque text-white"></i>
+    <header class="py-4 px-6 flex-shrink-0 z-50">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i class="fas fa-mosque text-white text-lg"></i>
                 </div>
-                <div class="logo-text">
-                    <h1>Al-Ifta</h1>
-                    <span>Smart Assistant</span>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight leading-none">Al-Ifta</h1>
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-emerald-600 opacity-80">Smart Assistant</span>
                 </div>
             </div>
+            
             <button onclick="toggleTheme()" class="theme-toggle-btn">
-                <i id="theme-icon" class="fas fa-sun"></i>
+                <i id="theme-icon" class="fas fa-sun text-lg"></i>
             </button>
         </div>
     </header>
 
-    <main>
-        <div class="glass-panel">
-            <div id="chat-window">
-                <div id="welcome-screen">
-                    <div class="welcome-icon">
-                        <i class="fas fa-book-open"></i>
+    <main class="flex-grow flex flex-col overflow-hidden w-full max-w-4xl mx-auto p-4 md:p-6 pb-2">
+        <div class="flex-grow glass-panel shadow-xl flex flex-col overflow-hidden">
+            
+            <div id="chat-window" class="flex-grow overflow-y-auto p-4 md:p-8 space-y-8">
+                <div id="welcome-screen" class="flex flex-col items-center justify-center text-center h-full space-y-6 py-10">
+                    <div class="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center">
+                        <i class="fas fa-book-open text-emerald-500 text-3xl"></i>
                     </div>
-                    <div class="welcome-text">
-                        <h2>Assalamou alaykoum</h2>
-                        <p>Je suis votre assistant pour les questions religieuses selon le Coran et la Sunnah.</p>
+                    <div class="max-w-sm">
+                        <h2 class="text-2xl font-bold mb-3">Assalamou alaykoum</h2>
+                        <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Je suis votre assistant pour les questions religieuses selon le Coran et la Sunnah.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="input-area">
-                <form id="qa-form" class="form-container">
-                    <input type="text" id="user-input" placeholder="Posez votre question ici..." autocomplete="off" required>
-                    <button type="submit" id="submit-btn">
-                        <i class="fas fa-paper-plane"></i>
+            <div class="p-4 md:p-6 bg-slate-50/50 dark:bg-slate-900/30 border-t border-emerald-500/10">
+                <form id="qa-form" class="flex items-center gap-3 max-w-3xl mx-auto">
+                    <input type="text" id="user-input" 
+                        class="flex-grow border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-base"
+                        placeholder="Posez votre question ici..." autocomplete="off" required>
+                    
+                    <button type="submit" id="submit-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-2xl transition-all active:scale-90 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+                        <i class="fas fa-paper-plane text-lg"></i>
                     </button>
                 </form>
-                <p class="footer-tag">Allahou A'lam • Ahl As-Sunnah</p>
+                <p class="text-[10px] text-center mt-4 text-slate-400 uppercase tracking-widest font-bold">Allahou A'lam • Ahl As-Sunnah</p>
             </div>
         </div>
     </main>
 
     <script>
-        // --- Logique Gemini (Inchangée) ---
         const systemPrompt = `Tu es une intelligence artificielle spécialisée dans la transmission des avis des savants de Ahl As-Sunnah wa-l-Jamâ‘ah selon la compréhension des Salaf As-Sâlih, en particulier les savants salafis contemporains d’Arabie Saoudite et assimilés (Comité Permanent de l’Iftâ – Lajnah Dâ-imah, Cheikh Ibn Bāz, Cheikh Ibn ‘Uthaymīn, Cheikh Al-Fawzān, Cheikh Al-Albānī, Cheikh Muqbil, Cheikh Soulaymān Ar-Rouhaylī, etc.).
 
 Règles impératives de réponse :
 
 1/Les preuves reposent en priorité sur le Coran et la Sunnah authentique, selon la compréhension des Salaf.
+
 2/Les hadiths doivent être explicitement authentifiés (Sahîh / Hasan / Da‘îf) avec référence aux savants du hadith (Al-Albānī, Al-Bukhārī, Muslim, etc.) et numérotés pour être vérifiés dans les ouvrages.
+
 3/Les avis juridiques doivent être attribués clairement à des savants reconnus ou à des organismes officiels (Lajnah Dâ-imah).
+
 4/Les preuves (Dalîl) doivent être présentées ainsi :
+
 *Texte arabe vocalisé
+
 *Traduction française fidèle
+
 5/En cas de divergence entre les savants, mentionne :
+
 *les avis existants brièvement
+
 *l’avis prépondérant (râjih) selon les savants salafis
+
 6/Réponds en français clair, structuré et respectueux, sans propos excessifs ni takfîr.
+
 7/Cite toujours tes sources (page web, pages des livres...)
+
 8/Termine toujours par une conclusion rappelant :
+
 *que ceci est une transmission des paroles des savants
+
 *que pour les situations complexes, il faut consulter un savant
+
 *et la formule : Allahou A‘lam
+
 9/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.
+
 10/TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuation arabe (virgule '،', point d'interrogation '؟', point-virgule '؛'). Intègre l'arabe directement dans tes paragraphes sans blocs de citation.`;
 
         const html = document.documentElement;
@@ -282,19 +253,19 @@ Règles impératives de réponse :
             }
             
             const wrapper = document.createElement('div');
-            wrapper.className = `message-wrapper ${isUser ? 'items-end' : 'items-start'}`;
+            wrapper.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500`;
             
             const msg = document.createElement('div');
-            msg.className = isUser ? 'user-bubble' : 'bot-bubble markdown-content';
+            msg.className = isUser 
+                ? 'user-bubble px-6 py-4 max-w-[85%] md:max-w-[70%]'
+                : 'bot-bubble px-6 py-6 max-w-[95%] md:max-w-[85%] markdown-content';
             
             msg.innerHTML = isUser ? text : formatResponse(text);
             wrapper.appendChild(msg);
 
             if (!isUser) {
                 const shareBar = document.createElement('div');
-                shareBar.style.display = 'flex';
-                shareBar.style.gap = '0.5rem';
-                shareBar.style.marginTop = '0.5rem';
+                shareBar.className = 'flex gap-2 mt-2 px-2';
                 shareBar.innerHTML = `
                     <button onclick="share('whatsapp', this)" class="share-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
                     <button onclick="share('telegram', this)" class="share-btn" title="Telegram"><i class="fab fa-telegram-plane"></i></button>
@@ -309,6 +280,7 @@ Règles impératives de réponse :
         }
 
         function formatResponse(text) {
+            // Détection du texte arabe et application de dir="rtl" pour la lecture correcte
             let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
                 return `<span class="arabic-inline" dir="rtl">${match.trim()}</span>`;
             });
@@ -319,14 +291,20 @@ Règles impératives de réponse :
         }
 
         async function share(platform, btn) {
-            const messageElement = btn.closest('.message-wrapper').querySelector(btn.closest('.message-wrapper').querySelector('.user-bubble') ? '.user-bubble' : '.bot-bubble');
+            const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
             const textToShare = messageElement.innerText;
             const encodedText = encodeURIComponent(textToShare);
 
             switch(platform) {
-                case 'whatsapp': window.open(`https://wa.me/?text=${encodedText}`, '_blank'); break;
-                case 'telegram': window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank'); break;
-                case 'sms': window.open(`sms:?body=${encodedText}`, '_blank'); break;
+                case 'whatsapp':
+                    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+                    break;
+                case 'telegram':
+                    window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank');
+                    break;
+                case 'sms':
+                    window.open(`sms:?body=${encodedText}`, '_blank');
+                    break;
                 case 'copy':
                     try {
                         const tempInput = document.createElement('textarea');
@@ -336,7 +314,9 @@ Règles impératives de réponse :
                         document.execCommand('copy');
                         document.body.removeChild(tempInput);
                         showToast("Texte copié !");
-                    } catch (err) { console.error('Erreur de copie', err); }
+                    } catch (err) {
+                        console.error('Erreur de copie', err);
+                    }
                     break;
             }
         }
@@ -368,14 +348,8 @@ Règles impératives de réponse :
             userInput.value = '';
             
             const loading = document.createElement('div');
-            loading.style.display = 'flex';
-            loading.style.alignItems = 'center';
-            loading.style.gap = '0.75rem';
-            loading.style.padding = '1rem';
-            loading.style.color = 'var(--emerald-500)';
-            loading.style.fontStyle = 'italic';
-            loading.style.fontSize = '0.875rem';
-            loading.innerHTML = '<div class="dot-flashing"></div><span style="opacity: 0.7">Consultation des sources...</span>';
+            loading.className = 'flex items-center gap-3 p-4 mb-4 text-emerald-500 italic text-sm';
+            loading.innerHTML = '<div class="dot-flashing"></div><span class="opacity-70 ml-4">Consultation des sources...</span>';
             chatWindow.appendChild(loading);
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
 
