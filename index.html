@@ -366,22 +366,32 @@ Règles impératives de réponse :
 
 9/Si la question n’a aucun lien avec l’Islam, la jurisprudence ou la croyance, refuse poliment d’y répondre.
 
-TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuation arabe (virgule '،', point d'interrogation '؟', point-virgule '؛'). Intègre l'arabe directement dans tes paragraphes sans blocs de citation.`;
+10/TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuation arabe (virgule '،', point d'interrogation '؟', point-virgule '؛'). Intègre l'arabe directement dans tes paragraphes sans blocs de citation.`;
 
         const html = document.documentElement;
-        const themeIcon = document.getElementById('theme-icon');
+        const icon = document.getElementById('theme-icon');
+
+        function updateUI(theme) {
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                icon.className = 'fas fa-moon';
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                icon.className = 'fas fa-sun';
+            }
+        }
 
         function toggleTheme() {
-            const isDark = html.classList.toggle('dark');
-            themeIcon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const isDark = html.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            updateUI(newTheme);
+            localStorage.setItem('theme', newTheme);
         }
 
-        // Chargement du thème
-        if (localStorage.getItem('theme') === 'dark') {
-            html.classList.add('dark');
-            themeIcon.className = 'fas fa-moon';
-        }
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        updateUI(savedTheme);
 
         const chatWindow = document.getElementById('chat-window');
         const welcomeScreen = document.getElementById('welcome-screen');
@@ -389,24 +399,29 @@ TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuati
         const userInput = document.getElementById('user-input');
 
         function appendMessage(text, isUser) {
-            if (welcomeScreen) welcomeScreen.style.display = 'none';
+            if (welcomeScreen && welcomeScreen.style.display !== 'none') {
+                welcomeScreen.style.display = 'none';
+            }
             
             const wrapper = document.createElement('div');
-            wrapper.className = `message-wrapper ${isUser ? 'user' : 'bot'} fade-in-up`;
+            wrapper.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500`;
             
             const msg = document.createElement('div');
-            msg.className = `bubble ${isUser ? 'user-bubble' : 'bot-bubble'}`;
-            msg.innerHTML = isUser ? text : formatResponse(text);
+            msg.className = isUser 
+                ? 'user-bubble px-6 py-4 max-w-[85%] md:max-w-[70%]'
+                : 'bot-bubble px-6 py-6 max-w-[95%] md:max-w-[85%] markdown-content';
             
+            msg.innerHTML = isUser ? text : formatResponse(text);
             wrapper.appendChild(msg);
 
             if (!isUser) {
                 const shareBar = document.createElement('div');
-                shareBar.className = 'share-bar';
+                shareBar.className = 'flex gap-2 mt-2 px-2';
                 shareBar.innerHTML = `
-                    <button onclick="share('whatsapp', this)" class="share-btn"><i class="fab fa-whatsapp"></i></button>
-                    <button onclick="share('telegram', this)" class="share-btn"><i class="fab fa-telegram-plane"></i></button>
-                    <button onclick="share('copy', this)" class="share-btn"><i class="fas fa-copy"></i></button>
+                    <button onclick="share('whatsapp', this)" class="share-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+                    <button onclick="share('telegram', this)" class="share-btn" title="Telegram"><i class="fab fa-telegram-plane"></i></button>
+                    <button onclick="share('sms', this)" class="share-btn" title="SMS"><i class="fas fa-sms"></i></button>
+                    <button onclick="share('copy', this)" class="share-btn" title="Copier"><i class="fas fa-copy"></i></button>
                 `;
                 wrapper.appendChild(shareBar);
             }
@@ -416,34 +431,63 @@ TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuati
         }
 
         function formatResponse(text) {
-            // Détection arabe améliorée
-            let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{5,})/g, (match) => {
-                return `<span class="arabic-inline">${match.trim()}</span>`;
+            // Détection du texte arabe et application de dir="rtl" pour la lecture correcte
+            let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
+                return `<span class="arabic-inline" dir="rtl">${match.trim()}</span>`;
             });
-            // Markdown simple
             return formatted
-                .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--emerald-600);">$1</strong>')
-                .replace(/\n/g, '<br>');
+                .split('\n').map(line => line.trim() === '' ? '<br>' : line).join('\n')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         }
 
         async function share(platform, btn) {
-            const text = btn.closest('.message-wrapper').querySelector('.bot-bubble').innerText;
-            if (platform === 'copy') {
-                await navigator.clipboard.writeText(text);
-                showToast("Copié !");
-                return;
+            const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
+            const textToShare = messageElement.innerText;
+            const encodedText = encodeURIComponent(textToShare);
+
+            switch(platform) {
+                case 'whatsapp':
+                    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+                    break;
+                case 'telegram':
+                    window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank');
+                    break;
+                case 'sms':
+                    window.open(`sms:?body=${encodedText}`, '_blank');
+                    break;
+                case 'copy':
+                    try {
+                        const tempInput = document.createElement('textarea');
+                        tempInput.value = textToShare;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        showToast("Texte copié !");
+                    } catch (err) {
+                        console.error('Erreur de copie', err);
+                    }
+                    break;
             }
-            const urls = {
-                whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`,
-                telegram: `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`
-            };
-            window.open(urls[platform], '_blank');
         }
 
         function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.opacity = '1';
-            setTimeout(() => t.style.opacity = '0', 2000);
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        async function callGemini(query) {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query, systemPrompt: systemPrompt })
+            });
+            if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de réponse.";
         }
 
         qaForm.addEventListener('submit', async (e) => {
@@ -455,19 +499,19 @@ TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuati
             userInput.value = '';
             
             const loading = document.createElement('div');
-            loading.style.display = 'flex';
-            loading.style.alignItems = 'center';
-            loading.style.gap = '10px';
-            loading.style.color = 'var(--emerald-500)';
-            loading.innerHTML = '<div class="dot-flashing"></div><small>Consultation des sources...</small>';
+            loading.className = 'flex items-center gap-3 p-4 mb-4 text-emerald-500 italic text-sm';
+            loading.innerHTML = '<div class="dot-flashing"></div><span class="opacity-70 ml-4">Consultation des sources...</span>';
             chatWindow.appendChild(loading);
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
 
-            // Simuler la réponse
-            setTimeout(() => {
+            try {
+                const response = await callGemini(q);
                 loading.remove();
-                appendMessage("Exemple de réponse avec preuve : **قال رسول الله ﷺ :** « الدِّينُ النَّصِيحَةُ » (Le conseil est l'essence même de la religion).", false);
-            }, 1000);
+                appendMessage(response, false);
+            } catch (error) {
+                loading.remove();
+                appendMessage("Une erreur est survenue. Veuillez réessayer.", false);
+            }
         });
     </script>
 </body>
