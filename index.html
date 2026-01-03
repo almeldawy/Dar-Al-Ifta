@@ -59,12 +59,12 @@
             border-radius: 28px;
         }
 
-        /* Texte arabe intégré au flux sans bloc */
+        /* Texte arabe intégré au flux avec lecture de droite à gauche */
         .arabic-inline {
             font-family: 'Noto Naskh Arabic', serif;
             font-size: 1.25em;
             direction: rtl;
-            unicode-bidi: isolate;
+            display: inline-block; /* Nécessaire pour que dir="rtl" fonctionne correctement en ligne */
             color: #00A67E;
             line-height: 1.8;
             padding: 0 4px;
@@ -278,8 +278,9 @@ Règles impératives de réponse :
         }
 
         function formatResponse(text) {
+            // Détection du texte arabe et application de dir="rtl" pour la lecture correcte
             let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
-                return `<span class="arabic-inline">${match.trim()}</span>`;
+                return `<span class="arabic-inline" dir="rtl">${match.trim()}</span>`;
             });
             return formatted
                 .split('\n').map(line => line.trim() === '' ? '<br>' : line).join('\n')
