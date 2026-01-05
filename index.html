@@ -276,7 +276,17 @@ Règles impératives de réponse :
             }
             
             chatWindow.appendChild(wrapper);
-            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+
+            // --- CORRECTION DU SCROLL ICI ---
+            if (isUser) {
+                // Pour l'utilisateur, on descend tout en bas
+                chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+            } else {
+                // Pour l'IA, on ne scroll PAS tout en bas.
+                // Le comportement par défaut laissera l'utilisateur au début du nouveau message.
+                // On peut optionnellement s'assurer que le haut du message est visible :
+                // wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function formatResponse(text) {
@@ -336,7 +346,7 @@ Règles impératives de réponse :
             });
             if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
             const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Le service est fermé, Veuillez revenir ultérieurement!";
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de réponse.";
         }
 
         qaForm.addEventListener('submit', async (e) => {
