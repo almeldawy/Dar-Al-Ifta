@@ -460,37 +460,31 @@ Règles impératives de réponse :
             break;
             
         case 'telegram':
-            // Détection mobile vs desktop
-            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            
-            try {
-                // Copie le texte dans tous les cas
-                await navigator.clipboard.writeText(textToShare);
-                showToast("Texte copié ! Ouvrez Telegram pour le partager");
-                
-                // Délai pour laisser le temps de lire le toast
-                setTimeout(() => {
-                    if (isMobile) {
-                        // Sur mobile : ouvre l'app Telegram native
-                        // tg:// est le protocole qui lance l'app
-                        window.location.href = 'tg://msg';
-                        
-                        // Fallback si l'app n'est pas installée (ouvre le Play Store/App Store)
-                        setTimeout(() => {
-                            const isAndroid = /Android/i.test(navigator.userAgent);
-                            if (isAndroid) {
-                                window.open('https://play.google.com/store/apps/details?id=org.telegram.messenger', '_blank');
-                            } else {
-                                window.open('https://apps.apple.com/app/telegram-messenger/id686449807', '_blank');
-                            }
-                        }, 1500);
-                    } else {
-                        // Sur PC : ouvre Telegram Web ou Desktop
-                        window.open('https://web.telegram.org/', '_blank');
+            // Sur mobile moderne : utilise l'API Web Share native
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Réponse Al-Ifta',
+                        text: textToShare
+                    });
+                    // L'utilisateur choisit Telegram (ou autre app) dans le menu de partage
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        showToast("Erreur de partage");
                     }
-                }, 1000);
-            } catch (err) {
-                showToast("Erreur : veuillez copier le texte manuellement");
+                    // AbortError = l'utilisateur a annulé, c'est normal
+                }
+            } else {
+                // Fallback pour navigateurs anciens ou PC
+                try {
+                    await navigator.clipboard.writeText(textToShare);
+                    showToast("Texte copié ! Ouvrez Telegram pour le partager");
+                    setTimeout(() => {
+                        window.open('https://web.telegram.org/', '_blank');
+                    }, 1000);
+                } catch (err) {
+                    showToast("Veuillez copier le texte manuellement");
+                }
             }
             break;
             
