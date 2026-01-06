@@ -460,10 +460,9 @@ Règles impératives de réponse :
             break;
             
         case 'telegram':
-    // On peut laisser 'url' vide et remplir 'text'
-    const telegramUrl = `https://t.me/share/url?url=&text=${encodedText}`;
-    window.open(telegramUrl, '_blank');
-    break;
+            // Telegram supporte bien le texte encodé avec les sauts de ligne
+            window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank');
+            break;
             
         case 'sms':
             // Sur iOS/Android, le paramètre est généralement 'body'
