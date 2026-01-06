@@ -388,7 +388,8 @@ Règles impératives de réponse :
                 : 'bot-bubble px-6 py-6 max-w-[95%] md:max-w-[85%] markdown-content'; // Style Bot
             
             // Insertion du texte (formaté si c'est l'IA, brut si c'est l'user)
-            msg.innerHTML = isUser ? text : formatResponse(text);
+            // SÉCURITÉ : escapeHtml() protège contre les attaques XSS
+            msg.innerHTML = isUser ? escapeHtml(text) : formatResponse(text);
             wrapper.appendChild(msg);
 
             // Ajout des boutons de partage seulement pour l'IA (Version Premium)
@@ -430,7 +431,15 @@ Règles impératives de réponse :
                 // Si c'est l'IA, on laisse le comportement naturel pour éviter de "sauter" pendant la lecture
             }
         }
-
+           // Fonction de sécurité : échappe le HTML pour éviter les attaques XSS
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")   // & devient &amp;
+        .replace(/</g, "&lt;")    // < devient &lt;
+        .replace(/>/g, "&gt;")    // > devient &gt;
+        .replace(/"/g, "&quot;")  // " devient &quot;
+        .replace(/'/g, "&#039;"); // ' devient &#039;
+} 
         // Fonction intelligente pour formater le texte de l'IA
         function formatResponse(text) {
             // Détection du texte arabe via Regex pour lui appliquer la police et la direction RTL
