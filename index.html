@@ -456,7 +456,8 @@ Règles impératives de réponse :
                     window.open(`https://wa.me/?text=${encodedText}`, '_blank');
                     break;
                 case 'telegram':
-                    window.open(`https://t.me/share/url?text=${encodedText}`, '_blank');
+                    // Utilise le point de terminaison 'msg' au lieu de 'share/url'
+                    window.open(`https://t.me/share/msg?text=${encodedText}`, '_blank');
                     break;
                 case 'sms':
                     window.open(`sms:?body=${encodedText}`, '_blank');
