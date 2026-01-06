@@ -460,16 +460,37 @@ Règles impératives de réponse :
             break;
             
         case 'telegram':
-            // Telegram nécessite une URL valide, donc on copie le texte puis on ouvre Telegram
+            // Détection mobile vs desktop
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
             try {
+                // Copie le texte dans tous les cas
                 await navigator.clipboard.writeText(textToShare);
                 showToast("Texte copié ! Ouvrez Telegram pour le partager");
-                // Ouvre Telegram Web (l'utilisateur collera le texte lui-même)
+                
+                // Délai pour laisser le temps de lire le toast
                 setTimeout(() => {
-                    window.open('https://web.telegram.org/', '_blank');
-                }, 1500);
+                    if (isMobile) {
+                        // Sur mobile : ouvre l'app Telegram native
+                        // tg:// est le protocole qui lance l'app
+                        window.location.href = 'tg://msg';
+                        
+                        // Fallback si l'app n'est pas installée (ouvre le Play Store/App Store)
+                        setTimeout(() => {
+                            const isAndroid = /Android/i.test(navigator.userAgent);
+                            if (isAndroid) {
+                                window.open('https://play.google.com/store/apps/details?id=org.telegram.messenger', '_blank');
+                            } else {
+                                window.open('https://apps.apple.com/app/telegram-messenger/id686449807', '_blank');
+                            }
+                        }, 1500);
+                    } else {
+                        // Sur PC : ouvre Telegram Web ou Desktop
+                        window.open('https://web.telegram.org/', '_blank');
+                    }
+                }, 1000);
             } catch (err) {
-                showToast("Veuillez copier le texte manuellement");
+                showToast("Erreur : veuillez copier le texte manuellement");
             }
             break;
             
