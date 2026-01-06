@@ -446,38 +446,47 @@ Règles impératives de réponse :
 
         // Fonction pour gérer les boutons de partage
         async function share(platform, btn) {
-            // On récupère le texte du message associé au bouton cliqué
-            const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
-            const textToShare = messageElement.innerText;
-            const encodedText = encodeURIComponent(textToShare); // Prépare le texte pour une URL
+    // Récupération du texte
+    const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
+    const textToShare = messageElement.innerText;
+    
+    // Encodage pour les URLs (gère l'arabe et les emojis)
+    const encodedText = encodeURIComponent(textToShare);
 
-            switch(platform) {
-                case 'whatsapp':
-                    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-                    break;
-                case 'telegram':
-                    // Utilise le point de terminaison 'msg' au lieu de 'share/url'
-                    window.open(`https://t.me/share/msg?text=${encodedText}`, '_blank');
-                    break;
-                case 'sms':
-                    window.open(`sms:?body=${encodedText}`, '_blank');
-                    break;
-                case 'copy':
-                    try {
-                        // Astuce pour copier : créer un champ temporaire, copier, puis supprimer
-                        const tempInput = document.createElement('textarea');
-                        tempInput.value = textToShare;
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-                        showToast("Texte copié !");
-                    } catch (err) {
-                        console.error('Erreur de copie', err);
-                    }
-                    break;
+    switch(platform) {
+        case 'whatsapp':
+            // WhatsApp gère très bien les sauts de ligne via l'encodage
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+            break;
+            
+        case 'telegram':
+            // Correction : Utilisation de 'msg' pour le texte pur
+            window.open(`https://t.me/share/msg?text=${encodedText}`, '_blank');
+            break;
+            
+        case 'sms':
+            // Sur iOS/Android, le paramètre est généralement 'body'
+            // On ajoute un séparateur ';' ou '?' selon l'OS (automatisé par le navigateur ici)
+            window.open(`sms:?body=${encodedText}`, '_blank');
+            break;
+            
+        case 'copy':
+            try {
+                await navigator.clipboard.writeText(textToShare);
+                showToast("Texte copié !");
+            } catch (err) {
+                // Méthode de secours si navigator.clipboard échoue
+                const tempInput = document.createElement('textarea');
+                tempInput.value = textToShare;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast("Texte copié !");
             }
-        }
+            break;
+    }
+}
 
         // Affiche le petit message "Copié !" qui disparaît tout seul
         function showToast(msg) {
