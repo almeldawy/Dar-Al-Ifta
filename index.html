@@ -460,8 +460,17 @@ Règles impératives de réponse :
             break;
             
         case 'telegram':
-            // Telegram supporte bien le texte encodé avec les sauts de ligne
-            window.open(`https://t.me/share/url?url=&text=${encodedText}`, '_blank');
+            // Telegram nécessite une URL valide, donc on copie le texte puis on ouvre Telegram
+            try {
+                await navigator.clipboard.writeText(textToShare);
+                showToast("Texte copié ! Ouvrez Telegram pour le partager");
+                // Ouvre Telegram Web (l'utilisateur collera le texte lui-même)
+                setTimeout(() => {
+                    window.open('https://web.telegram.org/', '_blank');
+                }, 1500);
+            } catch (err) {
+                showToast("Veuillez copier le texte manuellement");
+            }
             break;
             
         case 'sms':
