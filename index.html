@@ -1,23 +1,39 @@
 <!DOCTYPE html>
+<!-- Déclare que c'est une page HTML5 moderne -->
 <html lang="fr" class="light">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> <!-- Permet d'afficher les accents (é, à, ç) correctement -->
+    
+    <!-- Gère l'affichage sur mobile : empêche le zoom (user-scalable=no) pour que ça ressemble à une vraie appli (viewport-fit=cover) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Lien vers le fichier manifest (nécessaire pour installer l'appli sur Android/iPhone) -->
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-<link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Couleur de la barre d'état du navigateur sur mobile -->
+    <meta name="theme-color" content="#000000">
+    <!-- Icône pour les iPhones -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <title>Al-Ifta Smart Assistant</title>
     
+    <!-- Importation de Tailwind CSS (Outil pour le design rapide sans créer de fichier CSS externe) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Importation de FontAwesome pour les icônes (la mosquée, l'avion en papier, le soleil) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Importation des polices d'écriture Google (Amiri et Noto Naskh pour l'arabe, Plus Jakarta pour le français) -->
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script>
+        // Configuration de Tailwind CSS
         tailwind.config = {
-            darkMode: 'class',
+            darkMode: 'class', // Active le mode sombre via une classe HTML 'dark' ou 'light'
             theme: {
                 extend: {
                     colors: {
+                        // On définit nos propres nuances de vert émeraude
                         emerald: { 500: '#00A67E', 600: '#008B69' },
                     }
                 }
@@ -26,37 +42,42 @@
     </script>
 
     <style>
+        /* CSS PERSONNALISÉ */
+        
+        /* :root définit les variables globales (comme des raccourcis couleurs) */
         :root {
-            --bg-main: #FDFDFD;
-            --panel-bg: rgba(255, 255, 255, 0.95);
-            --text-main: #1E293B;
-            --border-color: rgba(0, 166, 126, 0.12);
-            --input-bg: #FFFFFF;
+            --bg-main: #FDFDFD; /* Fond principal clair */
+            --panel-bg: rgba(255, 255, 255, 0.95); /* Fond des panneaux semi-transparent */
+            --text-main: #1E293B; /* Couleur du texte sombre */
+            --border-color: rgba(0, 166, 126, 0.12); /* Bordures subtiles vertes */
+            --input-bg: #FFFFFF; /* Fond de la zone de saisie */
         }
 
+        /* .dark redéfinit ces mêmes variables quand le mode sombre est activé */
         .dark {
-            --bg-main: #0F172A;
-            --panel-bg: rgba(30, 41, 59, 0.8);
-            --text-main: #F1F5F9;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --input-bg: rgba(15, 23, 42, 0.6);
+            --bg-main: #0F172A; /* Fond bleu nuit très foncé */
+            --panel-bg: rgba(30, 41, 59, 0.8); /* Panneaux foncés */
+            --text-main: #F1F5F9; /* Texte clair */
+            --border-color: rgba(255, 255, 255, 0.08); /* Bordures subtiles blanches */
+            --input-bg: rgba(15, 23, 42, 0.6); /* Zone de saisie foncée */
         }
 
         body {
-            height: 100dvh;
-            background-color: var(--bg-main);
+            height: 100dvh; /* dvh = dynamic viewport height. C'est crucial sur mobile pour éviter que la barre d'adresse ne cache le bas de l'appli */
+            background-color: var(--bg-main); /* Utilise la variable définie plus haut */
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Transition douce lors du changement de thème */
+            overflow: hidden; /* Empêche de scroller toute la page (seul le chat scrolle) */
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Organise le Header, le Main et le Footer en colonne verticale */
         }
 
+        /* Effet "verre dépoli" (Glassmorphism) */
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px); /* Floute ce qu'il y a derrière */
+            -webkit-backdrop-filter: blur(12px); /* Pour Safari/iPhone */
             border: 1px solid var(--border-color);
             border-radius: 28px;
         }
@@ -64,37 +85,42 @@
         /* Texte arabe intégré au flux avec lecture de droite à gauche */
         .arabic-inline {
             font-family: 'Noto Naskh Arabic', serif;
-            font-size: 1.25em;
-            direction: rtl;
-            display: inline-block; /* Nécessaire pour que dir="rtl" fonctionne correctement en ligne */
-            color: #00A67E;
+            font-size: 1.25em; /* Un peu plus gros que le français car l'arabe paraît souvent petit */
+            direction: rtl; /* Right To Left : sens de lecture arabe */
+            display: inline-block; /* Nécessaire pour que dir="rtl" fonctionne correctement au milieu d'une phrase */
+            color: #00A67E; /* Vert pour mettre en valeur les versets/hadiths */
             line-height: 1.8;
             padding: 0 4px;
         }
 
+        /* Style des bulles de l'utilisateur (Vert dégradé) */
         .user-bubble {
             background: linear-gradient(135deg, #00A67E, #008162);
             color: white;
-            border-radius: 20px 20px 4px 20px;
+            border-radius: 20px 20px 4px 20px; /* Le coin en bas à droite est pointu */
             box-shadow: 0 4px 12px rgba(0, 166, 126, 0.15);
         }
 
+        /* Style des bulles de l'IA (Couleur du panneau) */
         .bot-bubble {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 20px 20px 20px 4px;
+            border-radius: 20px 20px 20px 4px; /* Le coin en bas à gauche est pointu */
             color: var(--text-main);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
+        /* Boutons de partage sous les messages de l'IA */
         .share-btn {
             @apply p-2 hover:bg-emerald-500/10 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400;
         }
 
+        /* Personnalisation de la barre de défilement (Scrollbar) pour qu'elle soit jolie */
         #chat-window::-webkit-scrollbar { width: 4px; }
         #chat-window::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
         .dark #chat-window::-webkit-scrollbar-thumb { background: #334155; }
 
+        /* Le bouton Soleil/Lune */
         .theme-toggle-btn {
             width: 44px; height: 44px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
@@ -102,9 +128,11 @@
             cursor: pointer; transition: all 0.2s; color: #00A67E;
         }
 
+        /* Espacement pour le contenu Markdown (les paragraphes générés par l'IA) */
         .markdown-content p { margin-bottom: 1rem; }
         .markdown-content strong { color: #00A67E; font-weight: 700; }
         
+        /* Animation des trois petits points qui clignotent pendant le chargement */
         .dot-flashing {
             position: relative; width: 6px; height: 6px; border-radius: 5px;
             background-color: #00A67E; animation: dot-flashing 1s infinite linear alternate;
@@ -114,6 +142,7 @@
             50%, 100% { background-color: rgba(0, 166, 126, 0.2); }
         }
 
+        /* Notification "Toast" (Message temporaire "Copié !") */
         #toast {
             position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
             background: #334155; color: white; padding: 10px 20px; border-radius: 12px;
@@ -121,19 +150,94 @@
             z-index: 1000;
         }
 
-        /* Correction de la visibilité de l'input */
+        /* Correction de la couleur de l'input */
         #user-input {
             color: var(--text-main);
             background-color: var(--input-bg);
         }
+        /* --- DÉBUT DU STYLE PREMIUM SHARE --- */
+        
+        /* Conteneur des boutons : une ligne propre avec une petite bordure au-dessus */
+        .share-actions-container {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Espace entre les boutons */
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color); /* Ligne de séparation subtile */
+            width: 100%;
+        }
+
+        /* Le bouton de base */
+        .premium-share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px; /* Coins arrondis modernes */
+            background-color: rgba(0,0,0,0.03); /* Fond très léger par défaut */
+            color: #64748B; /* Gris neutre */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animation fluide */
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        /* Mode sombre pour le bouton de base */
+        .dark .premium-share-btn {
+            background-color: rgba(255,255,255,0.05);
+            color: #94A3B8;
+        }
+
+        /* --- Couleurs Spécifiques au survol (Hover) --- */
+
+        /* WhatsApp : Vert officiel */
+        .premium-share-btn.whatsapp:hover {
+            background-color: #DCFCE7; 
+            color: #16A34A;
+            transform: translateY(-2px); /* Le bouton monte légèrement */
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2); /* Ombre verte */
+        }
+        .dark .premium-share-btn.whatsapp:hover { background-color: rgba(22, 163, 74, 0.2); color: #4ADE80; }
+
+        /* Telegram : Bleu officiel */
+        .premium-share-btn.telegram:hover {
+            background-color: #E0F2FE;
+            color: #0284C7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        }
+        .dark .premium-share-btn.telegram:hover { background-color: rgba(2, 132, 199, 0.2); color: #38BDF8; }
+
+        /* SMS : Gris/Violet */
+        .premium-share-btn.sms:hover {
+            background-color: #F1F5F9;
+            color: #475569;
+            transform: translateY(-2px);
+        }
+        .dark .premium-share-btn.sms:hover { background-color: rgba(255,255,255,0.1); color: #E2E8F0; }
+
+        /* Copier : Doré/Jaune (pour le distinguer) */
+        .premium-share-btn.copy:hover {
+            background-color: #FEF9C3;
+            color: #CA8A04;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.2);
+        }
+        .dark .premium-share-btn.copy:hover { background-color: rgba(202, 138, 4, 0.2); color: #FACC15; }
+
+        /* --- FIN DU STYLE PREMIUM SHARE --- */
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased"> <!-- antialiased rend les polices plus nettes -->
 
+    <!-- Le petit message de notification caché par défaut -->
     <div id="toast">Copié dans le presse-papiers</div>
 
+    <!-- En-tête (Header) -->
     <header class="py-4 px-6 flex-shrink-0 z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <!-- Logo et Titre -->
             <div class="flex items-center gap-3">
                 <div class="w-11 h-11 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
                     <i class="fas fa-mosque text-white text-lg"></i>
@@ -144,16 +248,21 @@
                 </div>
             </div>
             
+            <!-- Bouton pour changer le thème -->
             <button onclick="toggleTheme()" class="theme-toggle-btn">
                 <i id="theme-icon" class="fas fa-sun text-lg"></i>
             </button>
         </div>
     </header>
 
+    <!-- Corps principal (Main) -->
     <main class="flex-grow flex flex-col overflow-hidden w-full max-w-4xl mx-auto p-4 md:p-6 pb-2">
+        <!-- Panneau principal avec effet de verre -->
         <div class="flex-grow glass-panel shadow-xl flex flex-col overflow-hidden">
             
+            <!-- Zone de discussion où s'affichent les messages -->
             <div id="chat-window" class="flex-grow overflow-y-auto p-4 md:p-8 space-y-8">
+                <!-- Écran d'accueil (disparaît dès le premier message) -->
                 <div id="welcome-screen" class="flex flex-col items-center justify-center text-center h-full space-y-6 py-10">
                     <div class="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center">
                         <i class="fas fa-book-open text-emerald-500 text-3xl"></i>
@@ -165,22 +274,28 @@
                 </div>
             </div>
 
+            <!-- Zone de saisie (Formulaire en bas) -->
             <div class="p-4 md:p-6 bg-slate-50/50 dark:bg-slate-900/30 border-t border-emerald-500/10">
                 <form id="qa-form" class="flex items-center gap-3 max-w-3xl mx-auto">
+                    <!-- Champ de texte -->
                     <input type="text" id="user-input" 
                         class="flex-grow border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-base"
                         placeholder="Posez votre question ici..." autocomplete="off" required>
                     
+                    <!-- Bouton envoyer (avion en papier) -->
                     <button type="submit" id="submit-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-2xl transition-all active:scale-90 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
                         <i class="fas fa-paper-plane text-lg"></i>
                     </button>
                 </form>
+                <!-- Mention légale / Disclaimer -->
                 <p class="text-[10px] text-center mt-4 text-slate-400 uppercase tracking-widest font-bold">Allahou A'lam • Ahl As-Sunnah</p>
             </div>
         </div>
     </main>
 
+    <!-- LOGIQUE JAVASCRIPT -->
     <script>
+        // Le System Prompt est l'instruction secrète donnée à l'IA pour définir sa personnalité et ses règles
         const systemPrompt = `Tu es une intelligence artificielle spécialisée dans la transmission des avis des savants de Ahl As-Sunnah wa-l-Jamâ‘ah selon la compréhension des Salaf As-Sâlih, en particulier les savants salafis contemporains d’Arabie Saoudite et assimilés (Comité Permanent de l’Iftâ – Lajnah Dâ-imah, Cheikh Ibn Bāz, Cheikh Ibn ‘Uthaymīn, Cheikh Al-Fawzān, Cheikh Al-Albānī, Cheikh Muqbil, Cheikh Soulaymān Ar-Rouhaylī, etc.).
 
 Règles impératives de réponse :
@@ -219,93 +334,122 @@ Règles impératives de réponse :
 
 10/TRÈS IMPORTANT : Dans tes segments en arabe, utilise EXCLUSIVEMENT la ponctuation arabe (virgule '،', point d'interrogation '؟', point-virgule '؛'). Intègre l'arabe directement dans tes paragraphes sans blocs de citation.`;
 
+        // Sélection des éléments HTML pour pouvoir les manipuler
         const html = document.documentElement;
         const icon = document.getElementById('theme-icon');
 
+        // Fonction pour changer visuellement le thème (Change les classes CSS et l'icône)
         function updateUI(theme) {
             if (theme === 'dark') {
                 html.classList.add('dark');
                 html.classList.remove('light');
-                icon.className = 'fas fa-moon';
+                icon.className = 'fas fa-moon'; // Icône lune
             } else {
                 html.classList.add('light');
                 html.classList.remove('dark');
-                icon.className = 'fas fa-sun';
+                icon.className = 'fas fa-sun'; // Icône soleil
             }
         }
 
+        // Fonction appelée quand on clique sur le bouton thème
         function toggleTheme() {
             const isDark = html.classList.contains('dark');
             const newTheme = isDark ? 'light' : 'dark';
             updateUI(newTheme);
-            localStorage.setItem('theme', newTheme);
+            localStorage.setItem('theme', newTheme); // Sauvegarde le choix dans la mémoire du navigateur
         }
 
+        // Au chargement de la page, on vérifie s'il y a un thème sauvegardé
         const savedTheme = localStorage.getItem('theme') || 'light';
         updateUI(savedTheme);
 
+        // Sélection des éléments de la zone de chat
         const chatWindow = document.getElementById('chat-window');
         const welcomeScreen = document.getElementById('welcome-screen');
         const qaForm = document.getElementById('qa-form');
         const userInput = document.getElementById('user-input');
 
+        // Fonction principale pour ajouter un message à l'écran
         function appendMessage(text, isUser) {
+            // Si l'écran de bienvenue est là, on l'enlève
             if (welcomeScreen && welcomeScreen.style.display !== 'none') {
                 welcomeScreen.style.display = 'none';
             }
             
+            // Création du conteneur du message (wrapper)
             const wrapper = document.createElement('div');
+            // Aligne à droite si user, à gauche si bot
             wrapper.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500`;
             
+            // Création de la bulle de texte
             const msg = document.createElement('div');
             msg.className = isUser 
-                ? 'user-bubble px-6 py-4 max-w-[85%] md:max-w-[70%]'
-                : 'bot-bubble px-6 py-6 max-w-[95%] md:max-w-[85%] markdown-content';
+                ? 'user-bubble px-6 py-4 max-w-[85%] md:max-w-[70%]' // Style User
+                : 'bot-bubble px-6 py-6 max-w-[95%] md:max-w-[85%] markdown-content'; // Style Bot
             
+            // Insertion du texte (formaté si c'est l'IA, brut si c'est l'user)
             msg.innerHTML = isUser ? text : formatResponse(text);
             wrapper.appendChild(msg);
 
+            // Ajout des boutons de partage seulement pour l'IA (Version Premium)
             if (!isUser) {
                 const shareBar = document.createElement('div');
-                shareBar.className = 'flex gap-2 mt-2 px-2';
+                // On utilise notre nouvelle classe conteneur
+                shareBar.className = 'share-actions-container'; 
+                
+                // On injecte les boutons avec les nouvelles classes (whatsapp, telegram, etc.)
                 shareBar.innerHTML = `
-                    <button onclick="share('whatsapp', this)" class="share-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
-                    <button onclick="share('telegram', this)" class="share-btn" title="Telegram"><i class="fab fa-telegram-plane"></i></button>
-                    <button onclick="share('sms', this)" class="share-btn" title="SMS"><i class="fas fa-sms"></i></button>
-                    <button onclick="share('copy', this)" class="share-btn" title="Copier"><i class="fas fa-copy"></i></button>
+                    <button onclick="share('whatsapp', this)" class="premium-share-btn whatsapp" aria-label="Partager sur WhatsApp">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                    </button>
+                    
+                    <button onclick="share('telegram', this)" class="premium-share-btn telegram" aria-label="Partager sur Telegram">
+                        <i class="fab fa-telegram-plane text-lg"></i>
+                    </button>
+                    
+                    <button onclick="share('sms', this)" class="premium-share-btn sms" aria-label="Envoyer par SMS">
+                        <i class="fas fa-sms text-lg"></i>
+                    </button>
+                    
+                    <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 4px;"></div>
+
+                    <button onclick="share('copy', this)" class="premium-share-btn copy" aria-label="Copier le texte">
+                        <i class="fas fa-copy text-lg"></i>
+                    </button>
                 `;
                 wrapper.appendChild(shareBar);
             }
             
             chatWindow.appendChild(wrapper);
 
-            // --- CORRECTION DU SCROLL ICI ---
+            // --- GESTION DU DÉFILEMENT (SCROLL) ---
             if (isUser) {
-                // Pour l'utilisateur, on descend tout en bas
+                // Si c'est l'utilisateur, on descend tout en bas pour voir son message
                 chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
             } else {
-                // Pour l'IA, on ne scroll PAS tout en bas.
-                // Le comportement par défaut laissera l'utilisateur au début du nouveau message.
-                // On peut optionnellement s'assurer que le haut du message est visible :
-                // wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Si c'est l'IA, on laisse le comportement naturel pour éviter de "sauter" pendant la lecture
             }
         }
 
+        // Fonction intelligente pour formater le texte de l'IA
         function formatResponse(text) {
-            // Détection du texte arabe et application de dir="rtl" pour la lecture correcte
+            // Détection du texte arabe via Regex pour lui appliquer la police et la direction RTL
             let formatted = text.replace(/([\u0600-\u06FF][\u0600-\u06FF\s،؛؟]{4,})/g, (match) => {
                 return `<span class="arabic-inline" dir="rtl">${match.trim()}</span>`;
             });
+            // Remplace les sauts de ligne par <br> et le gras Markdown ** par <strong>
             return formatted
                 .split('\n').map(line => line.trim() === '' ? '<br>' : line).join('\n')
                 .replace(/\n/g, '<br>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         }
 
+        // Fonction pour gérer les boutons de partage
         async function share(platform, btn) {
+            // On récupère le texte du message associé au bouton cliqué
             const messageElement = btn.closest('.flex-col').querySelector('.bot-bubble');
             const textToShare = messageElement.innerText;
-            const encodedText = encodeURIComponent(textToShare);
+            const encodedText = encodeURIComponent(textToShare); // Prépare le texte pour une URL
 
             switch(platform) {
                 case 'whatsapp':
@@ -319,6 +463,7 @@ Règles impératives de réponse :
                     break;
                 case 'copy':
                     try {
+                        // Astuce pour copier : créer un champ temporaire, copier, puis supprimer
                         const tempInput = document.createElement('textarea');
                         tempInput.value = textToShare;
                         document.body.appendChild(tempInput);
@@ -333,6 +478,7 @@ Règles impératives de réponse :
             }
         }
 
+        // Affiche le petit message "Copié !" qui disparaît tout seul
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
@@ -340,6 +486,7 @@ Règles impératives de réponse :
             setTimeout(() => { toast.style.opacity = '0'; }, 2000);
         }
 
+        // Fonction qui contacte le serveur (l'API) pour avoir la réponse de Gemini
         async function callGemini(query) {
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -351,14 +498,16 @@ Règles impératives de réponse :
             return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur de réponse.";
         }
 
+        // Écouteur d'événement : quand on envoie le formulaire
         qaForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Empêche le rechargement de la page
             const q = userInput.value.trim();
-            if (!q) return;
+            if (!q) return; // Si vide, on ne fait rien
 
-            appendMessage(q, true);
-            userInput.value = '';
+            appendMessage(q, true); // Affiche la question
+            userInput.value = ''; // Vide le champ
             
+            // Crée l'indicateur de chargement (les 3 points qui bougent)
             const loading = document.createElement('div');
             loading.className = 'flex items-center gap-3 p-4 mb-4 text-emerald-500 italic text-sm';
             loading.innerHTML = '<div class="dot-flashing"></div><span class="opacity-70 ml-4">Consultation des sources...</span>';
@@ -366,15 +515,18 @@ Règles impératives de réponse :
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
 
             try {
+                // Appel à l'IA
                 const response = await callGemini(q);
-                loading.remove();
-                appendMessage(response, false);
+                loading.remove(); // Enlève le chargement
+                appendMessage(response, false); // Affiche la réponse
             } catch (error) {
                 loading.remove();
                 appendMessage("Une erreur est survenue. Veuillez réessayer.", false);
             }
         });
     </script>
+    
+    <!-- Script pour le Service Worker (Permet à l'appli de fonctionner un peu hors ligne ou d'être installée) -->
     <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
