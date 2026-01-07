@@ -275,21 +275,22 @@
             </div>
 
             <!-- Zone de saisie (Formulaire en bas) -->
-            <div class="p-4 md:p-6 bg-slate-50/50 dark:bg-slate-900/30 border-t border-emerald-500/10">
-                <form id="qa-form" class="flex items-center gap-3 max-w-3xl mx-auto">
-                    <!-- Champ de texte -->
-                    <input type="text" id="user-input" 
-                        class="flex-grow border border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-base"
-                        placeholder="Posez votre question ici..." autocomplete="off" required>
-                    
-                    <!-- Bouton envoyer (avion en papier) -->
-                    <button type="submit" id="submit-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-2xl transition-all active:scale-90 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
-                        <i class="fas fa-paper-plane text-lg"></i>
-                    </button>
-                </form>
-                <!-- Mention légale / Disclaimer -->
-                <p class="text-[10px] text-center mt-4 text-slate-400 uppercase tracking-widest font-bold">Allahou A'lam • Ahl As-Sunnah</p>
-            </div>
+            <div class="p-3 md:p-6 bg-slate-50/50 dark:bg-slate-900/30 border-t border-emerald-500/10">
+    <form id="qa-form" class="flex items-center gap-2 w-full max-w-3xl mx-auto">
+        <input type="text" id="user-input" 
+            class="flex-grow min-w-0 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 md:py-4 md:px-5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-base"
+            placeholder="Posez votre question ici..." autocomplete="off" required>
+        
+        <button type="submit" id="submit-btn" 
+            class="bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-2xl transition-all active:scale-90 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+            <i class="fas fa-paper-plane text-lg"></i>
+        </button>
+    </form>
+
+    <p class="text-[10px] text-center mt-4 text-slate-400 uppercase tracking-widest font-bold">
+        Allahou A'lam • Ahl As-Sunnah
+    </p>
+</div>
         </div>
     </main>
 
