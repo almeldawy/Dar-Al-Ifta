@@ -1,6 +1,6 @@
 {
-  "name": "Dar Al-Ifta",
-  "short_name": "DarAlIfta",
+  "name": "Fatwah",
+  "short_name": "Fatwah",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
